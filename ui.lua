@@ -452,11 +452,11 @@ getgenv().loaded = true
             end 
         end 
         
-        function library:round(number, float) 
-            local multiplier = 1 / (float or 1)
-
-            return floor(number * multiplier + 0.5) / multiplier
-        end 
+        function library:round(number, float)
+            float = float or 1
+            local multiplier = 1 / float
+            return math.round(number * multiplier) / multiplier
+        end
 
         function library:apply_theme(instance, theme, property) 
             insert(themes.utility[theme][property], instance)
@@ -611,8 +611,16 @@ getgenv().loaded = true
                 });
             --
 
+            cfg.frame = window_outline
+
+            library:connection(uis.InputBegan, function(input, gpe)
+                if input.KeyCode == (properties.toggle_key or Enum.KeyCode.RightShift) then
+                    window_outline.Visible = not window_outline.Visible
+                end
+            end)
+
             return setmetatable(cfg, library)
-        end 
+        end
 
         function library:tab(properties)
             local cfg = {
