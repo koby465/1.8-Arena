@@ -1289,15 +1289,16 @@ getgenv().loaded = true
                     name = options.name or nil,
                     suffix = options.suffix or "",
                     flag = options.flag or tostring(2^789),
-                    callback = options.callback or function() end, 
-    
+                    callback = options.callback or function() end,
+                    display = options.display or nil,
+
                     min = options.min or options.minimum or 0,
                     max = options.max or options.maximum or 100,
                     intervals = options.interval or options.decimal or 1,
                     default = options.default or 10,
-                    value = options.default or 10, 
+                    value = options.default or 10,
 
-                    ignore = options.ignore or false, 
+                    ignore = options.ignore or false,
                     dragging = false,
                 } 
 
