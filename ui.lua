@@ -1294,7 +1294,7 @@ getgenv().loaded = true
 
                     min = options.min or options.minimum or 0,
                     max = options.max or options.maximum or 100,
-                    intervals = options.interval or options.decimal or 1,
+                    intervals = options.intervals or options.interval or options.decimal or 1,
                     default = options.default or 10,
                     value = options.default or 10,
 
