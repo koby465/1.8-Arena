@@ -613,9 +613,61 @@ getgenv().loaded = true
 
             cfg.frame = window_outline
 
+            local open = true
+            local animating = false
+            local fullSize = cfg.size
+            local toggleKey = properties.toggle_key or Enum.KeyCode.RightShift
+
+            function cfg.set_toggle_key(key)
+                toggleKey = key
+            end
+
+            function cfg.toggle()
+                if animating then return end
+                animating = true
+                if open then
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
+                        BackgroundTransparency = 1,
+                    }):Play()
+                    for _, v in ipairs(window_outline:GetDescendants()) do
+                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                            tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+                        end
+                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+                        end
+                    end
+                    task.delay(0.25, function()
+                        window_outline.Visible = false
+                        animating = false
+                    end)
+                else
+                    window_outline.Visible = true
+                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
+                    window_outline.BackgroundTransparency = 1
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = fullSize,
+                        BackgroundTransparency = 0,
+                    }):Play()
+                    for _, v in ipairs(window_outline:GetDescendants()) do
+                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                        end
+                    end
+                    task.delay(0.25, function()
+                        animating = false
+                    end)
+                end
+                open = not open
+            end
+
             library:connection(uis.InputBegan, function(input, gpe)
-                if input.KeyCode == (properties.toggle_key or Enum.KeyCode.RightShift) then
-                    window_outline.Visible = not window_outline.Visible
+                if input.KeyCode == toggleKey then
+                    cfg.toggle()
                 end
             end)
 
