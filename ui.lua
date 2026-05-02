@@ -2371,10 +2371,13 @@ getgenv().loaded = true
                         task.wait()
                         text.Text = "..."	
 
-                        cfg.binding = library:connection(uis.InputBegan, function(keycode, game_event)  
-                            cfg.set(keycode.KeyCode)
+                        cfg.binding = library:connection(uis.InputBegan, function(keycode, game_event)
+                            local key = keycode.UserInputType == Enum.UserInputType.Keyboard
+                                and keycode.KeyCode
+                                or keycode.UserInputType
+                            cfg.set(key)
 
-                            cfg.binding:Disconnect() 
+                            cfg.binding:Disconnect()
                             cfg.binding = nil
                         end)
                     end)
