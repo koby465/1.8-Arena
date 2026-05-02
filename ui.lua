@@ -1368,7 +1368,8 @@ getgenv().loaded = true
                         cfg.value = clamp(library:round(valuee, cfg.intervals), cfg.min, cfg.max)
 
                         accent.Size = dim2((cfg.value - cfg.min) / (cfg.max - cfg.min), 0, 1, 0)
-                        eeeee.Text = cfg.name ..  "<font color='#AAAAAA'>" .. ' - ' .. tostring(cfg.value) .. cfg.suffix .. "</font>"
+                        local display = cfg.display and cfg.display(cfg.value) or tostring(cfg.value)
+                        eeeee.Text = cfg.name ..  "<font color='#AAAAAA'>" .. ' - ' .. display .. cfg.suffix .. "</font>"
                         
                         flags[cfg.flag] = cfg.value
 
@@ -2388,13 +2389,14 @@ getgenv().loaded = true
                         cfg.set_visible(cfg.open) 
                     end)
 
-                    library:connection(uis.InputBegan, function(input, game_event) 
-                        if not game_event then 
-                            if input.KeyCode == cfg.key then 
-                                if cfg.mode == "Toggle" then 
+                    library:connection(uis.InputBegan, function(input, game_event)
+                        if not game_event then
+                            local pressed = input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode or input.UserInputType
+                            if pressed == cfg.key then
+                                if cfg.mode == "Toggle" then
                                     cfg.active = not cfg.active
                                     cfg.set(cfg.active)
-                                elseif cfg.mode == "Hold" then 
+                                elseif cfg.mode == "Hold" then
                                     cfg.set(true)
                                 end
                             end
