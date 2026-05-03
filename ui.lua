@@ -2509,12 +2509,29 @@ getgenv().loaded = true
                     callback = options.callback or function() end,
                 }
 
-                local frame = library:create("TextButton", {
-                    Text = "";
-                    AutoButtonColor = false;
+                local accent = library:create("Frame", {
                     Parent = self.elements;
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, 0, 0, 12);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = self.color
+                }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
+
+                local inline = library:create("Frame", {
+                    Parent = accent;
+                    Position = dim2(0, 1, 0, 1);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, -2, 1, -2);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = themes.preset.inline
+                }); library:apply_theme(inline, "inline", "BackgroundColor3")
+
+                local btn = library:create("TextButton", {
+                    Text = "";
+                    AutoButtonColor = false;
+                    Parent = accent;
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, 0, 1, 0);
                     BorderSizePixel = 0;
                     BackgroundTransparency = 1;
                     BackgroundColor3 = rgb(255, 255, 255)
@@ -2524,19 +2541,18 @@ getgenv().loaded = true
                     FontFace = fonts["ProggyClean"];
                     TextColor3 = rgb(255, 255, 255);
                     BorderColor3 = rgb(0, 0, 0);
-                    Text = "[ " .. cfg.name .. " ]";
-                    Parent = frame;
+                    Text = cfg.name;
+                    Parent = inline;
                     Size = dim2(1, 0, 1, 0);
-                    Position = dim2(0, 1, 0, -1);
+                    Position = dim2(0, 4, 0, 0);
                     BackgroundTransparency = 1;
                     TextXAlignment = Enum.TextXAlignment.Left;
                     BorderSizePixel = 0;
-                    AutomaticSize = Enum.AutomaticSize.X;
                     TextSize = 12;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
 
-                frame.MouseButton1Click:Connect(function()
+                btn.MouseButton1Click:Connect(function()
                     cfg.callback()
                 end)
 
