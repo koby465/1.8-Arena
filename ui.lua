@@ -1494,7 +1494,7 @@ getgenv().loaded = true
                     ignore = options.ignore or false, 
                 }   
 
-                cfg.default = options.default or (cfg.multi and {cfg.items[1]}) or cfg.items[1] or "None"
+                cfg.default = options.default or (cfg.multi and {cfg.items[1]}) or cfg.items[1] or nil
 
                 flags[cfg.flag] = {} 
 
@@ -1692,7 +1692,9 @@ getgenv().loaded = true
 
                     cfg.refresh_options(cfg.items)
 
-                    cfg.set(cfg.default)
+                    if cfg.default and cfg.default ~= "" then
+                        cfg.set(cfg.default)
+                    end
 
                     config_flags[cfg.flag] = cfg.set
                 -- 
