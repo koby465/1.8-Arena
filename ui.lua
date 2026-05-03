@@ -549,7 +549,8 @@ getgenv().loaded = true
                     BorderColor3 = rgb(0, 0, 0);
                     Size = cfg.size;
                     BorderSizePixel = 0;
-                    BackgroundColor3 = rgb(255, 255, 255)
+                    BackgroundColor3 = rgb(255, 255, 255);
+                    ClipsDescendants = true;
                 });
                 window_outline.Position = dim2(0, window_outline.AbsolutePosition.Y, 0, window_outline.AbsolutePosition.Y)
                 cfg.main_outline = window_outline
@@ -638,10 +639,10 @@ getgenv().loaded = true
                 animating = true
 
                 if open then
-                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    tween_service:Create(window_outline, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                         Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
                     }):Play()
-                    task.delay(0.25, function()
+                    task.delay(0.15, function()
                         window_outline.Visible = false
                         animating = false
                     end)
