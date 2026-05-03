@@ -580,14 +580,25 @@ getgenv().loaded = true
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
                 
+                local border_frame = library:create("Frame", {
+                    Parent = window_outline;
+                    Size = dim2(1, 0, 1, 0);
+                    Position = dim2(0, 0, 0, 0);
+                    BackgroundColor3 = rgb(255, 255, 255);
+                    BorderSizePixel = 0;
+                    ZIndex = 0;
+                });
+
                 library.gradient = library:create("UIGradient", {
                     Color = rgbseq{
                         rgbkey(0, themes.preset["1"]), 
                         rgbkey(0.5, themes.preset["2"]),
                         rgbkey(1, themes.preset["3"]),
                     };
-                    Parent = window_outline
+                    Parent = border_frame
                 });
+
+                window_outline.BackgroundColor3 = rgb(20, 20, 20)
                 
                 local tab_button_holder = library:create("Frame", {
                     AnchorPoint = vec2(0, 1);
