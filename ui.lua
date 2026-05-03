@@ -639,17 +639,17 @@ getgenv().loaded = true
                 animating = true
 
                 if open then
-                    tween_service:Create(window_outline, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
+                    tween_service:Create(window_outline, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 24), -- collapse to title bar height
                     }):Play()
-                    task.delay(0.15, function()
+                    task.delay(0.2, function()
                         window_outline.Visible = false
                         animating = false
                     end)
                 else
                     window_outline.Visible = true
-                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
-                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 24)
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                         Size = fullSize,
                     }):Play()
                     task.delay(0.25, function()
