@@ -2507,26 +2507,15 @@ getgenv().loaded = true
                 local cfg = {
                     name = options.name or "button",
                     callback = options.callback or function() end,
+                    notification = options.notification or nil,
                 }
 
-                local row = library:create("Frame", {
+                local accent = library:create("Frame", {
                     Parent = self.elements;
                     BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, 0, 0, 12);
+                    Size = dim2(1, 0, 0, 16);
                     BorderSizePixel = 0;
-                    BackgroundTransparency = 1;
-                    BackgroundColor3 = rgb(255, 255, 255);
-                });
-
-                local accent = library:create("Frame", {
-                    Parent = row;
-                    AnchorPoint = vec2(0.5, 0);
-                    Position = dim2(0.5, 0, 0, 0);
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(0, 0, 1, 0);
-                    AutomaticSize = Enum.AutomaticSize.X;
-                    BorderSizePixel = 0;
-                    BackgroundColor3 = self.color
+                    BackgroundColor3 = self.color;
                 }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
 
                 local inline = library:create("Frame", {
@@ -2534,34 +2523,31 @@ getgenv().loaded = true
                     Position = dim2(0, 1, 0, 1);
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, -2, 1, -2);
-                    AutomaticSize = Enum.AutomaticSize.X;
                     BorderSizePixel = 0;
                     BackgroundColor3 = themes.preset.inline;
                 }); library:apply_theme(inline, "inline", "BackgroundColor3")
 
                 local btn = library:create("TextButton", {
                     FontFace = fonts["ProggyClean"];
-                    TextColor3 = rgb(255, 255, 255);
+                    TextColor3 = rgb(200, 200, 200);
                     Text = cfg.name;
                     AutoButtonColor = false;
                     Parent = inline;
                     BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(0, 0, 1, 0);
-                    AutomaticSize = Enum.AutomaticSize.X;
+                    Size = dim2(1, 0, 1, 0);
                     Position = dim2(0, 6, 0, 0);
                     BorderSizePixel = 0;
                     BackgroundTransparency = 1;
-                    TextXAlignment = Enum.TextXAlignment.Center;
+                    TextXAlignment = Enum.TextXAlignment.Left;
                     TextSize = 12;
                     BackgroundColor3 = rgb(255, 255, 255);
                 });
 
-                local pad = Instance.new("UIPadding")
-                pad.PaddingRight = dim(0, 6)
-                pad.Parent = inline
-
                 btn.MouseButton1Click:Connect(function()
                     cfg.callback()
+                    if cfg.notification then
+                        notifications:create_notification({ name = cfg.notification })
+                    end
                 end)
 
                 return setmetatable(cfg, library)
