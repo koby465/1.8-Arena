@@ -1650,7 +1650,7 @@ getgenv().loaded = true
                             end
                         end
 
-                        text.Text = if isTable then concat(selected, ", ") else selected[1]
+                        text.Text = if isTable then concat(selected, ", ") else (selected[1] or "")
 
                         flags[cfg.flag] = if isTable then selected else selected[1]
                         
