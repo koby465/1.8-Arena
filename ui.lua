@@ -618,9 +618,16 @@ getgenv().loaded = true
             local fullSize = cfg.size
             local toggleKey = properties.toggle_key or Enum.KeyCode.RightShift
 
-            function cfg.set_toggle_key(key)
-                toggleKey = key
-            end
+            local snapshot = {}
+            task.defer(function()
+                for _, v in ipairs(window_outline:GetDescendants()) do
+                    if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                        snapshot[v] = {text = v.TextTransparency, bg = v.BackgroundTransparency}
+                    elseif v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                        snapshot[v] = {bg = v.BackgroundTransparency}
+                    end
+                end
+            end)
 
             function cfg.toggle()
                 if animating then return end
@@ -642,15 +649,6 @@ getgenv().loaded = true
                         animating = false
                     end)
                 else
-                    local snapshot = {}
-                    for _, v in ipairs(window_outline:GetDescendants()) do
-                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-                            snapshot[v] = {text = v.TextTransparency, bg = v.BackgroundTransparency}
-                        elseif v:IsA("Frame") or v:IsA("ScrollingFrame") then
-                            snapshot[v] = {bg = v.BackgroundTransparency}
-                        end
-                    end
-
                     window_outline.Visible = true
                     window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
 
