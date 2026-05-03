@@ -2517,30 +2517,21 @@ getgenv().loaded = true
                     BackgroundColor3 = self.color
                 }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
 
-                local inline = library:create("Frame", {
-                    Parent = accent;
-                    Position = dim2(0, 1, 0, 1);
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, -2, 1, -2);
-                    BorderSizePixel = 0;
-                    BackgroundColor3 = themes.preset.inline
-                }); library:apply_theme(inline, "inline", "BackgroundColor3")
-
                 local btn = library:create("TextButton", {
                     FontFace = fonts["ProggyClean"];
                     TextColor3 = rgb(255, 255, 255);
                     Text = cfg.name;
                     AutoButtonColor = false;
-                    Parent = inline;
+                    Parent = accent;
                     BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, 0, 1, 0);
-                    Position = dim2(0, 4, 0, 0);
+                    Size = dim2(1, -2, 1, -2);
+                    Position = dim2(0, 1, 0, 1);
                     BorderSizePixel = 0;
-                    BackgroundTransparency = 1;
-                    TextXAlignment = Enum.TextXAlignment.Left;
+                    BackgroundTransparency = 0;
+                    TextXAlignment = Enum.TextXAlignment.Center;
                     TextSize = 12;
-                    BackgroundColor3 = rgb(255, 255, 255)
-                });
+                    BackgroundColor3 = self.color
+                }); library:apply_theme(btn, tostring(self.count), "BackgroundColor3")
 
                 btn.MouseButton1Click:Connect(function()
                     cfg.callback()
