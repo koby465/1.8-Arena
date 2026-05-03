@@ -2509,29 +2509,56 @@ getgenv().loaded = true
                     callback = options.callback or function() end,
                 }
 
-                local accent = library:create("Frame", {
+                local row = library:create("Frame", {
                     Parent = self.elements;
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, 0, 0, 12);
                     BorderSizePixel = 0;
+                    BackgroundTransparency = 1;
+                    BackgroundColor3 = rgb(255, 255, 255);
+                });
+
+                local accent = library:create("Frame", {
+                    Parent = row;
+                    AnchorPoint = vec2(0.5, 0);
+                    Position = dim2(0.5, 0, 0, 0);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(0, 0, 1, 0);
+                    AutomaticSize = Enum.AutomaticSize.X;
+                    BorderSizePixel = 0;
                     BackgroundColor3 = self.color
                 }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
+
+                local inline = library:create("Frame", {
+                    Parent = accent;
+                    Position = dim2(0, 1, 0, 1);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, -2, 1, -2);
+                    AutomaticSize = Enum.AutomaticSize.X;
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = themes.preset.inline;
+                }); library:apply_theme(inline, "inline", "BackgroundColor3")
 
                 local btn = library:create("TextButton", {
                     FontFace = fonts["ProggyClean"];
                     TextColor3 = rgb(255, 255, 255);
                     Text = cfg.name;
                     AutoButtonColor = false;
-                    Parent = accent;
+                    Parent = inline;
                     BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, -2, 1, -2);
-                    Position = dim2(0, 1, 0, 1);
+                    Size = dim2(0, 0, 1, 0);
+                    AutomaticSize = Enum.AutomaticSize.X;
+                    Position = dim2(0, 6, 0, 0);
                     BorderSizePixel = 0;
-                    BackgroundTransparency = 0;
+                    BackgroundTransparency = 1;
                     TextXAlignment = Enum.TextXAlignment.Center;
                     TextSize = 12;
-                    BackgroundColor3 = self.color
-                }); library:apply_theme(btn, tostring(self.count), "BackgroundColor3")
+                    BackgroundColor3 = rgb(255, 255, 255);
+                });
+
+                local pad = Instance.new("UIPadding")
+                pad.PaddingRight = dim(0, 6)
+                pad.Parent = inline
 
                 btn.MouseButton1Click:Connect(function()
                     cfg.callback()
