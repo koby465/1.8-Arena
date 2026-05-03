@@ -626,10 +626,6 @@ getgenv().loaded = true
                 if animating then return end
                 animating = true
                 if open then
-                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
-                        BackgroundTransparency = 1,
-                    }):Play()
                     for _, v in ipairs(window_outline:GetDescendants()) do
                         if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
                             tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
@@ -638,26 +634,42 @@ getgenv().loaded = true
                             tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
                         end
                     end
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
+                    }):Play()
                     task.delay(0.25, function()
                         window_outline.Visible = false
                         animating = false
                     end)
                 else
-                    window_outline.Visible = true
-                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
-                    window_outline.BackgroundTransparency = 1
-                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        Size = fullSize,
-                        BackgroundTransparency = 0,
-                    }):Play()
+                    local snapshot = {}
                     for _, v in ipairs(window_outline:GetDescendants()) do
                         if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
-                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
-                        end
-                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
-                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                            snapshot[v] = {text = v.TextTransparency, bg = v.BackgroundTransparency}
+                        elseif v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            snapshot[v] = {bg = v.BackgroundTransparency}
                         end
                     end
+
+                    window_outline.Visible = true
+                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
+
+                    for v, data in pairs(snapshot) do
+                        if data.text then v.TextTransparency = 1 end
+                        v.BackgroundTransparency = 1
+                    end
+
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = fullSize,
+                    }):Play()
+
+                    for v, data in pairs(snapshot) do
+                        if data.text then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {TextTransparency = data.text}):Play()
+                        end
+                        tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {BackgroundTransparency = data.bg}):Play()
+                    end
+
                     task.delay(0.25, function()
                         animating = false
                     end)
