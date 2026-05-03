@@ -2134,43 +2134,64 @@ getgenv().loaded = true
                 }
                 
                 -- Instances 
-                    local frame = library:create("TextButton", {
-                        AnchorPoint = vec2(1, 0);
-                        Text = "";
-                        AutoButtonColor = false;
+                    local frame = library:create("Frame", {
                         Parent = self.elements;
-                        Position = dim2(1, 0, 0, 0);
                         BorderColor3 = rgb(0, 0, 0);
-                        Size = dim2(1, 0, 0, 16);
+                        Size = dim2(1, 0, 0, 28);
+                        BorderSizePixel = 0;
+                        BackgroundTransparency = 1;
+                        BackgroundColor3 = self.color
+                    })
+
+                    local label = library:create("TextLabel", {
+                        Parent = frame;
+                        FontFace = fonts["ProggyClean"];
+                        TextColor3 = rgb(200, 200, 200);
+                        Text = cfg.name;
+                        BackgroundTransparency = 1;
+                        BorderSizePixel = 0;
+                        Size = dim2(1, 0, 0, 12);
+                        Position = dim2(0, 0, 0, 0);
+                        TextXAlignment = Enum.TextXAlignment.Left;
+                        TextSize = 12;
+                        BackgroundColor3 = rgb(255, 255, 255);
+                    })
+
+                    local accent = library:create("Frame", {
+                        Parent = frame;
+                        BorderColor3 = rgb(0, 0, 0);
+                        Size = dim2(1, 0, 0, 14);
+                        Position = dim2(0, 0, 0, 14);
                         BorderSizePixel = 0;
                         BackgroundColor3 = self.color
-                    }); library:apply_theme(frame, tostring(self.count), "BackgroundColor3")
-                    
+                    }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
+
                     local frame_inline = library:create("Frame", {
-                        Parent = frame;
+                        Parent = accent;
                         Position = dim2(0, 1, 0, 1);
                         BorderColor3 = rgb(0, 0, 0);
                         Size = dim2(1, -2, 1, -2);
                         BorderSizePixel = 0;
                         BackgroundColor3 = themes.preset.inline
                     }); library:apply_theme(frame_inline, "inline", "BackgroundColor3")
-                    
+
                     local input = library:create("TextBox", {
-                        Parent = frame,
+                        Parent = accent,
                         Name = "",
                         FontFace = fonts["ProggyClean"],
                         TextTruncate = Enum.TextTruncate.AtEnd,
                         TextSize = 12,
-                        Size = dim2(1, -6, 1, 0),
-                        RichText = true,
+                        Size = dim2(1, -8, 1, 0),
+                        RichText = false,
                         TextColor3 = rgb(255, 255, 255),
                         BorderColor3 = rgb(0, 0, 0),
                         CursorPosition = -1,
                         BackgroundTransparency = 1,
                         TextXAlignment = Enum.TextXAlignment.Left,
-                        Position = dim2(0, 6, 0, 0),
+                        Position = dim2(0, 4, 0, 0),
                         BorderSizePixel = 0,
-                        PlaceholderColor3 = rgb(170, 170, 170),
+                        PlaceholderColor3 = rgb(120, 120, 120),
+                        PlaceholderText = cfg.placeholder,
                     })
                 -- 
                 
