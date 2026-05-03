@@ -550,14 +550,13 @@ getgenv().loaded = true
                     Size = cfg.size;
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(255, 255, 255);
-                    ClipsDescendants = true;
                 });
                 window_outline.Position = dim2(0, window_outline.AbsolutePosition.Y, 0, window_outline.AbsolutePosition.Y)
                 cfg.main_outline = window_outline
 
                 library:resizify(window_outline)
-                library:draggify(window_outline)
-                
+                library:draggify(clip_frame)
+
                 local title_holder = library:create("Frame", {
                     Parent = window_outline;
                     BackgroundTransparency = 0.800000011920929;
@@ -625,6 +624,19 @@ getgenv().loaded = true
 
             cfg.frame = window_outline
 
+            -- Clip frame wraps window_outline and does the animation
+            local clip_frame = library:create("Frame", {
+                Parent = library.gui;
+                Position = window_outline.Position;
+                Size = fullSize;
+                BorderSizePixel = 0;
+                BackgroundTransparency = 1;
+                ClipsDescendants = true;
+            })
+
+            window_outline.Parent = clip_frame
+            window_outline.Position = dim2(0, 0, 0, 0)
+
             local open = true
             local animating = false
             local fullSize = cfg.size
@@ -639,17 +651,17 @@ getgenv().loaded = true
                 animating = true
 
                 if open then
-                    tween_service:Create(window_outline, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+                    tween_service:Create(clip_frame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
                         Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
                     }):Play()
-                    task.delay(0.15, function()
-                        window_outline.Visible = false
+                    task.delay(0.2, function()
+                        clip_frame.Visible = false
                         animating = false
                     end)
                 else
-                    window_outline.Visible = true
-                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
-                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                    clip_frame.Visible = true
+                    clip_frame.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
+                    tween_service:Create(clip_frame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
                         Size = fullSize,
                     }):Play()
                     task.delay(0.25, function()
@@ -700,6 +712,7 @@ getgenv().loaded = true
                         Size = dim2(1, -4, 1, -48);
                         BorderSizePixel = 0;
                         BackgroundColor3 = rgb(0, 0, 0),
+                        ClipsDescendants = true;
                         Visible = false,
                     }); cfg.page = Page
                     
