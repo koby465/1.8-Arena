@@ -527,158 +527,152 @@ getgenv().loaded = true
     --
     
     -- Library element functions
-    function library:window(properties)
-        local cfg = {
-            name = properties.name or properties.Name or "fijihack.panda",
-            size = properties.size or properties.Size or dim2(0, 460, 0, 362), 
-            selected_tab 
-        }
+        function library:window(properties)
+            local cfg = {
+                name = properties.name or properties.Name or "fijihack.panda",
+                size = properties.size or properties.Size or dim2(0, 460, 0, 362), 
+                selected_tab 
+            }
 
-        local fullSize = cfg.size
+            library.gui = library:create("ScreenGui", {
+                Parent = coregui,
+                Name = "\0",
+                Enabled = true,
+                ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+                IgnoreGuiInset = true,
+            })
 
-        library.gui = library:create("ScreenGui", {
-            Parent = coregui,
-            Name = "\0",
-            Enabled = true,
-            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-            IgnoreGuiInset = true,
-        })
+            -- Window
+                local window_outline = library:create("Frame", {
+                    Parent = library.gui;
+                    Position = dim2(0.5, -cfg.size.X.Offset / 2, 0.5, -cfg.size.Y.Offset / 2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = cfg.size;
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });
+                window_outline.Position = dim2(0, window_outline.AbsolutePosition.Y, 0, window_outline.AbsolutePosition.Y)
+                cfg.main_outline = window_outline
 
-        -- Clip frame is the outermost container that animates
-        local clip_frame = Instance.new("Frame")
-        clip_frame.BackgroundTransparency = 1
-        clip_frame.BorderSizePixel = 0
-        clip_frame.ClipsDescendants = true
-        clip_frame.Size = fullSize
-        clip_frame.Parent = library.gui
+                library:resizify(window_outline)
+                library:draggify(window_outline)
+                
+                local title_holder = library:create("Frame", {
+                    Parent = window_outline;
+                    BackgroundTransparency = 0.800000011920929;
+                    Position = dim2(0, 2, 0, 2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, -4, 0, 20);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(0, 0, 0)
+                });
+                
+                local ui_title = library:create("TextLabel", {
+                    FontFace = fonts["TahomaBold"];
+                    TextColor3 = rgb(255, 255, 255);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Text = cfg.name;
+                    Parent = title_holder;
+                    BackgroundTransparency = 1;
+                    Size = dim2(1, 0, 1, 0);
+                    BorderSizePixel = 0;
+                    TextSize = 12;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });
+                
+                library.gradient = library:create("UIGradient", {
+                    Color = rgbseq{
+                        rgbkey(0, themes.preset["1"]), 
+                        rgbkey(0.5, themes.preset["2"]),
+                        rgbkey(1, themes.preset["3"]),
+                    };
+                    Parent = window_outline
+                });
+                
+                local tab_button_holder = library:create("Frame", {
+                    AnchorPoint = vec2(0, 1);
+                    Parent = window_outline;
+                    BackgroundTransparency = 0.800000011920929;
+                    Position = dim2(0, 2, 1, -2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, -4, 0, 20);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(0, 0, 0)
+                }); cfg.tab_button_holder = tab_button_holder
+                
+                library:create("UIListLayout", {
+                    VerticalAlignment = Enum.VerticalAlignment.Center;
+                    FillDirection = Enum.FillDirection.Horizontal;
+                    HorizontalAlignment = Enum.HorizontalAlignment.Center;
+                    HorizontalFlex = Enum.UIFlexAlignment.Fill;
+                    Parent = tab_button_holder;
+                    SortOrder = Enum.SortOrder.LayoutOrder;
+                    VerticalFlex = Enum.UIFlexAlignment.Fill
+                });
+            --
 
-        -- Window sits inside clip_frame at full size, never resized
-        local window_outline = library:create("Frame", {
-            Parent = clip_frame;
-            Position = dim2(0, 0, 0, 0);
-            BorderColor3 = rgb(0, 0, 0);
-            Size = fullSize;
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(20, 20, 20);
-        })
+            cfg.frame = window_outline
 
-        -- Set clip_frame position to match where window would be
-        task.defer(function()
-            clip_frame.Position = dim2(0.5, -fullSize.X.Offset / 2, 0.5, -fullSize.Y.Offset / 2)
-            clip_frame.Position = dim2(0, clip_frame.AbsolutePosition.X, 0, clip_frame.AbsolutePosition.Y)
-        end)
+            local open = true
+            local animating = false
+            local fullSize = cfg.size
+            local toggleKey = properties.toggle_key or Enum.KeyCode.RightShift
 
-        cfg.main_outline = window_outline
-
-        library:resizify(window_outline)
-        library:draggify(clip_frame)
-
-        local title_holder = library:create("Frame", {
-            Parent = window_outline;
-            BackgroundTransparency = 0.800000011920929;
-            Position = dim2(0, 2, 0, 2);
-            BorderColor3 = rgb(0, 0, 0);
-            Size = dim2(1, -4, 0, 20);
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(0, 0, 0)
-        });
-        
-        local ui_title = library:create("TextLabel", {
-            FontFace = fonts["TahomaBold"];
-            TextColor3 = rgb(255, 255, 255);
-            BorderColor3 = rgb(0, 0, 0);
-            Text = cfg.name;
-            Parent = title_holder;
-            BackgroundTransparency = 1;
-            Size = dim2(1, 0, 1, 0);
-            BorderSizePixel = 0;
-            TextSize = 12;
-            BackgroundColor3 = rgb(255, 255, 255)
-        });
-        
-        local border_frame = library:create("Frame", {
-            Parent = window_outline;
-            Size = dim2(1, 0, 1, 0);
-            Position = dim2(0, 0, 0, 0);
-            BackgroundColor3 = rgb(255, 255, 255);
-            BorderSizePixel = 0;
-            ZIndex = 0;
-        });
-
-        library.gradient = library:create("UIGradient", {
-            Color = rgbseq{
-                rgbkey(0, themes.preset["1"]), 
-                rgbkey(0.5, themes.preset["2"]),
-                rgbkey(1, themes.preset["3"]),
-            };
-            Parent = border_frame
-        });
-        
-        local tab_button_holder = library:create("Frame", {
-            AnchorPoint = vec2(0, 1);
-            Parent = window_outline;
-            BackgroundTransparency = 0.800000011920929;
-            Position = dim2(0, 2, 1, -2);
-            BorderColor3 = rgb(0, 0, 0);
-            Size = dim2(1, -4, 0, 20);
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(0, 0, 0)
-        }); cfg.tab_button_holder = tab_button_holder
-        
-        library:create("UIListLayout", {
-            VerticalAlignment = Enum.VerticalAlignment.Center;
-            FillDirection = Enum.FillDirection.Horizontal;
-            HorizontalAlignment = Enum.HorizontalAlignment.Center;
-            HorizontalFlex = Enum.UIFlexAlignment.Fill;
-            Parent = tab_button_holder;
-            SortOrder = Enum.SortOrder.LayoutOrder;
-            VerticalFlex = Enum.UIFlexAlignment.Fill
-        });
-
-        cfg.frame = window_outline
-
-        local open = true
-        local animating = false
-        local toggleKey = properties.toggle_key or Enum.KeyCode.RightShift
-
-        function cfg.set_toggle_key(key)
-            toggleKey = key
-        end
-
-        function cfg.toggle()
-            if animating then return end
-            animating = true
-
-            if open then
-                tween_service:Create(clip_frame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                    Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
-                }):Play()
-                task.delay(0.2, function()
-                    clip_frame.Visible = false
-                    animating = false
-                end)
-            else
-                clip_frame.Visible = true
-                clip_frame.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
-                tween_service:Create(clip_frame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    Size = fullSize,
-                }):Play()
-                task.delay(0.25, function()
-                    animating = false
-                end)
+            function cfg.set_toggle_key(key)
+                toggleKey = key
             end
 
-            open = not open
-        end
-
-        library:connection(uis.InputBegan, function(input, gpe)
-            if input.KeyCode == toggleKey then
-                cfg.toggle()
+            function cfg.toggle()
+                if animating then return end
+                animating = true
+                if open then
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
+                        BackgroundTransparency = 1,
+                    }):Play()
+                    for _, v in ipairs(window_outline:GetDescendants()) do
+                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                            tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+                        end
+                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+                        end
+                    end
+                    task.delay(0.25, function()
+                        window_outline.Visible = false
+                        animating = false
+                    end)
+                else
+                    window_outline.Visible = true
+                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
+                    window_outline.BackgroundTransparency = 1
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = fullSize,
+                        BackgroundTransparency = 0,
+                    }):Play()
+                    for _, v in ipairs(window_outline:GetDescendants()) do
+                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                        end
+                    end
+                    task.delay(0.25, function()
+                        animating = false
+                    end)
+                end
+                open = not open
             end
-        end)
 
-        return setmetatable(cfg, library)
-    end
+            library:connection(uis.InputBegan, function(input, gpe)
+                if input.KeyCode == toggleKey then
+                    cfg.toggle()
+                end
+            end)
+
+            return setmetatable(cfg, library)
+        end
 
         function library:tab(properties)
             local cfg = {
@@ -711,7 +705,6 @@ getgenv().loaded = true
                         Size = dim2(1, -4, 1, -48);
                         BorderSizePixel = 0;
                         BackgroundColor3 = rgb(0, 0, 0),
-                        ClipsDescendants = true;
                         Visible = false,
                     }); cfg.page = Page
                     
