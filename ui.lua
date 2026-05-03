@@ -2527,27 +2527,17 @@ getgenv().loaded = true
                 }); library:apply_theme(inline, "inline", "BackgroundColor3")
 
                 local btn = library:create("TextButton", {
-                    Text = "";
-                    AutoButtonColor = false;
-                    Parent = accent;
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, 0, 1, 0);
-                    BorderSizePixel = 0;
-                    BackgroundTransparency = 1;
-                    BackgroundColor3 = rgb(255, 255, 255)
-                });
-
-                library:create("TextLabel", {
                     FontFace = fonts["ProggyClean"];
                     TextColor3 = rgb(255, 255, 255);
-                    BorderColor3 = rgb(0, 0, 0);
                     Text = cfg.name;
+                    AutoButtonColor = false;
                     Parent = inline;
+                    BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, 0, 1, 0);
                     Position = dim2(0, 4, 0, 0);
+                    BorderSizePixel = 0;
                     BackgroundTransparency = 1;
                     TextXAlignment = Enum.TextXAlignment.Left;
-                    BorderSizePixel = 0;
                     TextSize = 12;
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
