@@ -194,14 +194,17 @@ getgenv().loaded = true
     -- Font importing system 
         local fonts = {}; do
             function Register_Font(Name, Weight, Style, Asset)
-                if not isfile(Asset.Id) then
-                    writefile(Asset.Id, Asset.Font)
+                local ttfPath  = "priv9/fonts/" .. Asset.Id
+                local fontPath = "priv9/fonts/" .. Name .. ".font"
+
+                if not isfile(ttfPath) then
+                    writefile(ttfPath, Asset.Font)
                 end
-                
-                if isfile(Name .. ".font") then
-                    delfile(Name .. ".font")
+
+                if isfile(fontPath) then
+                    delfile(fontPath)
                 end
-                
+
                 local Data = {
                     name = Name,
                     faces = {
@@ -209,16 +212,16 @@ getgenv().loaded = true
                             name = "Regular",
                             weight = Weight,
                             style = Style,
-                            assetId = getcustomasset(Asset.Id),
+                            assetId = getcustomasset(ttfPath),
                         },
                     },
                 }
-                
-                writefile(Name .. ".font", game:GetService("HttpService"):JSONEncode(Data))
-                
-                return getcustomasset(Name .. ".font");
+
+                writefile(fontPath, game:GetService("HttpService"):JSONEncode(Data))
+
+                return getcustomasset(fontPath)
             end
-            
+
             local ProggyTiny = Register_Font("ProggyTiny", 200, "Normal", {
                 Id = "ProggyTiny.ttf",
                 Font = game:HttpGet("https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/tahoma_bold.ttf"),
@@ -1535,9 +1538,10 @@ getgenv().loaded = true
                             Parent = inline;
                             Size = dim2(1, 0, 1, 0);
                             BackgroundTransparency = 1;
-                            Position = dim2(0, 0, 0, 1);
+                            Position = dim2(0, 4, 0, 0);
                             BorderSizePixel = 0;
-                            AutomaticSize = Enum.AutomaticSize.X;
+                            TextXAlignment = Enum.TextXAlignment.Left;
+                            TextTruncate = Enum.TextTruncate.AtEnd;
                             TextSize = 12;
                             BackgroundColor3 = rgb(255, 255, 255)
                         });
