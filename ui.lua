@@ -2499,56 +2499,43 @@ getgenv().loaded = true
                 return setmetatable(cfg, library)
             end
 
-            function library:button(options) 
+            function library:button(options)
                 local cfg = {
                     name = options.name or "button",
                     callback = options.callback or function() end,
                 }
-                
-                -- Instances 
-                    local frame = library:create("TextButton", {
-                        AnchorPoint = vec2(1, 0);
-                        Text = "";
-                        AutoButtonColor = false;
-                        Parent = self.elements;
-                        Position = dim2(1, 0, 0, 0);
-                        BorderColor3 = rgb(0, 0, 0);
-                        Size = dim2(1, 0, 0, 16);
-                        BorderSizePixel = 0;
-                        BackgroundColor3 = self.color
-                    }); library:apply_theme(frame, tostring(self.count), "BackgroundColor3")
-                    
-                    local frame_inline = library:create("Frame", {
-                        Parent = frame;
-                        Position = dim2(0, 1, 0, 1);
-                        BorderColor3 = rgb(0, 0, 0);
-                        Size = dim2(1, -2, 1, -2);
-                        BorderSizePixel = 0;
-                        BackgroundColor3 = themes.preset.inline
-                    }); library:apply_theme(frame_inline, "inline", "BackgroundColor3")
-                    
-                    local text = library:create("TextLabel", {
-                        FontFace = fonts["ProggyClean"];
-                        TextColor3 = rgb(255, 255, 255);
-                        BorderColor3 = rgb(0, 0, 0);
-                        Text = cfg.name;
-                        Parent = frame;
-                        Size = dim2(1, 0, 1, 0);
-                        BackgroundTransparency = 1;
-                        Position = dim2(0, 1, 0, 1);
-                        BorderSizePixel = 0;
-                        AutomaticSize = Enum.AutomaticSize.X;
-                        TextSize = 12;
-                        BackgroundColor3 = rgb(255, 255, 255)
-                    });
-                -- 
 
-                -- Connections 
-                    frame.MouseButton1Click:Connect(function()
-                        cfg.callback()
-                    end)
-                --
-                
+                local frame = library:create("TextButton", {
+                    Text = "";
+                    AutoButtonColor = false;
+                    Parent = self.elements;
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, 0, 0, 12);
+                    BorderSizePixel = 0;
+                    BackgroundTransparency = 1;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });
+
+                library:create("TextLabel", {
+                    FontFace = fonts["ProggyClean"];
+                    TextColor3 = rgb(255, 255, 255);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Text = "[ " .. cfg.name .. " ]";
+                    Parent = frame;
+                    Size = dim2(1, 0, 1, 0);
+                    Position = dim2(0, 1, 0, -1);
+                    BackgroundTransparency = 1;
+                    TextXAlignment = Enum.TextXAlignment.Left;
+                    BorderSizePixel = 0;
+                    AutomaticSize = Enum.AutomaticSize.X;
+                    TextSize = 12;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });
+
+                frame.MouseButton1Click:Connect(function()
+                    cfg.callback()
+                end)
+
                 return setmetatable(cfg, library)
             end 
         -- 
