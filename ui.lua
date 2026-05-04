@@ -1018,7 +1018,7 @@ getgenv().loaded = true
                     BorderColor3 = rgb(0, 0, 0);
                     BorderSizePixel = 0;
                     BackgroundColor3 = self.color
-                }); library:apply_theme(fill, tostring(self.count), "BackgroundColor3");
+                }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3");
 
                 local dark = library:create("Frame", {
                     Parent = accent;
@@ -2236,8 +2236,8 @@ getgenv().loaded = true
                             Size = dim2(0.5, 0, 0, 16);
                             BorderSizePixel = 0;
                             BackgroundColor3 = self.color
-                        }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
-                        
+                        });
+        
                         local inline = library:create("Frame", {
                             Parent = keybind_holder;
                             Position = dim2(0, 1, 0, 1);
