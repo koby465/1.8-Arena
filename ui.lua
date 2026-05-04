@@ -194,17 +194,14 @@ getgenv().loaded = true
     -- Font importing system 
         local fonts = {}; do
             function Register_Font(Name, Weight, Style, Asset)
-                local ttfPath  = "priv9/fonts/" .. Asset.Id
-                local fontPath = "priv9/fonts/" .. Name .. ".font"
-
-                if not isfile(ttfPath) then
-                    writefile(ttfPath, Asset.Font)
+                if not isfile(Asset.Id) then
+                    writefile(Asset.Id, Asset.Font)
                 end
-
-                if isfile(fontPath) then
-                    delfile(fontPath)
+                
+                if isfile(Name .. ".font") then
+                    delfile(Name .. ".font")
                 end
-
+                
                 local Data = {
                     name = Name,
                     faces = {
@@ -212,16 +209,16 @@ getgenv().loaded = true
                             name = "Regular",
                             weight = Weight,
                             style = Style,
-                            assetId = getcustomasset(ttfPath),
+                            assetId = getcustomasset(Asset.Id),
                         },
                     },
                 }
-
-                writefile(fontPath, game:GetService("HttpService"):JSONEncode(Data))
-
-                return getcustomasset(fontPath)
+                
+                writefile(Name .. ".font", game:GetService("HttpService"):JSONEncode(Data))
+                
+                return getcustomasset(Name .. ".font");
             end
-
+            
             local ProggyTiny = Register_Font("ProggyTiny", 200, "Normal", {
                 Id = "ProggyTiny.ttf",
                 Font = game:HttpGet("https://github.com/i77lhm/storage/raw/refs/heads/main/fonts/tahoma_bold.ttf"),
@@ -432,8 +429,16 @@ getgenv().loaded = true
             return http_service:JSONEncode(Config)
         end
 
-        function library:load_config(config_json) 
-            local config = http_service:JSONDecode(config_json)
+        function library:save_config(name)
+            local data = library:get_config()
+            writefile(library.directory .. "/configs/" .. name .. ".cfg", data)
+            library:update_config_list()
+        end
+
+        function library:load_config(name) 
+            local path = library.directory .. "/configs/" .. name .. ".cfg"
+            if not isfile(path) then return end
+            local config = http_service:JSONDecode(readfile(path))
             
             for _, v in next, config do 
                 local function_set = library.config_flags[_]
@@ -530,158 +535,152 @@ getgenv().loaded = true
     --
     
     -- Library element functions
-    function library:window(properties)
-        local cfg = {
-            name = properties.name or properties.Name or "fijihack.panda",
-            size = properties.size or properties.Size or dim2(0, 460, 0, 362), 
-            selected_tab 
-        }
+        function library:window(properties)
+            local cfg = {
+                name = properties.name or properties.Name or "fijihack.panda",
+                size = properties.size or properties.Size or dim2(0, 460, 0, 362), 
+                selected_tab 
+            }
 
-        local fullSize = cfg.size
+            library.gui = library:create("ScreenGui", {
+                Parent = coregui,
+                Name = "\0",
+                Enabled = true,
+                ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+                IgnoreGuiInset = true,
+            })
 
-        library.gui = library:create("ScreenGui", {
-            Parent = coregui,
-            Name = "\0",
-            Enabled = true,
-            ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-            IgnoreGuiInset = true,
-        })
+            -- Window
+                local window_outline = library:create("Frame", {
+                    Parent = library.gui;
+                    Position = dim2(0.5, -cfg.size.X.Offset / 2, 0.5, -cfg.size.Y.Offset / 2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = cfg.size;
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });
+                window_outline.Position = dim2(0, window_outline.AbsolutePosition.Y, 0, window_outline.AbsolutePosition.Y)
+                cfg.main_outline = window_outline
 
-        -- Clip frame is the outermost container that animates
-        local clip_frame = Instance.new("Frame")
-        clip_frame.BackgroundTransparency = 1
-        clip_frame.BorderSizePixel = 0
-        clip_frame.ClipsDescendants = true
-        clip_frame.Size = fullSize
-        clip_frame.Parent = library.gui
+                library:resizify(window_outline)
+                library:draggify(window_outline)
+                
+                local title_holder = library:create("Frame", {
+                    Parent = window_outline;
+                    BackgroundTransparency = 0.800000011920929;
+                    Position = dim2(0, 2, 0, 2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, -4, 0, 20);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(0, 0, 0)
+                });
+                
+                local ui_title = library:create("TextLabel", {
+                    FontFace = fonts["TahomaBold"];
+                    TextColor3 = rgb(255, 255, 255);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Text = cfg.name;
+                    Parent = title_holder;
+                    BackgroundTransparency = 1;
+                    Size = dim2(1, 0, 1, 0);
+                    BorderSizePixel = 0;
+                    TextSize = 12;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });
+                
+                library.gradient = library:create("UIGradient", {
+                    Color = rgbseq{
+                        rgbkey(0, themes.preset["1"]), 
+                        rgbkey(0.5, themes.preset["2"]),
+                        rgbkey(1, themes.preset["3"]),
+                    };
+                    Parent = window_outline
+                });
+                
+                local tab_button_holder = library:create("Frame", {
+                    AnchorPoint = vec2(0, 1);
+                    Parent = window_outline;
+                    BackgroundTransparency = 0.800000011920929;
+                    Position = dim2(0, 2, 1, -2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(1, -4, 0, 20);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(0, 0, 0)
+                }); cfg.tab_button_holder = tab_button_holder
+                
+                library:create("UIListLayout", {
+                    VerticalAlignment = Enum.VerticalAlignment.Center;
+                    FillDirection = Enum.FillDirection.Horizontal;
+                    HorizontalAlignment = Enum.HorizontalAlignment.Center;
+                    HorizontalFlex = Enum.UIFlexAlignment.Fill;
+                    Parent = tab_button_holder;
+                    SortOrder = Enum.SortOrder.LayoutOrder;
+                    VerticalFlex = Enum.UIFlexAlignment.Fill
+                });
+            --
 
-        -- Window sits inside clip_frame at full size, never resized
-        local window_outline = library:create("Frame", {
-            Parent = clip_frame;
-            Position = dim2(0, 0, 0, 0);
-            BorderColor3 = rgb(0, 0, 0);
-            Size = fullSize;
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(20, 20, 20);
-        })
+            cfg.frame = window_outline
 
-        -- Set clip_frame position to match where window would be
-        task.defer(function()
-            clip_frame.Position = dim2(0.5, -fullSize.X.Offset / 2, 0.5, -fullSize.Y.Offset / 2)
-            clip_frame.Position = dim2(0, clip_frame.AbsolutePosition.X, 0, clip_frame.AbsolutePosition.Y)
-        end)
+            local open = true
+            local animating = false
+            local fullSize = cfg.size
+            local toggleKey = properties.toggle_key or Enum.KeyCode.RightShift
 
-        cfg.main_outline = window_outline
-
-        library:resizify(window_outline)
-        library:draggify(clip_frame)
-
-        local title_holder = library:create("Frame", {
-            Parent = window_outline;
-            BackgroundTransparency = 0.800000011920929;
-            Position = dim2(0, 2, 0, 2);
-            BorderColor3 = rgb(0, 0, 0);
-            Size = dim2(1, -4, 0, 20);
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(0, 0, 0)
-        });
-        
-        local ui_title = library:create("TextLabel", {
-            FontFace = fonts["TahomaBold"];
-            TextColor3 = rgb(255, 255, 255);
-            BorderColor3 = rgb(0, 0, 0);
-            Text = cfg.name;
-            Parent = title_holder;
-            BackgroundTransparency = 1;
-            Size = dim2(1, 0, 1, 0);
-            BorderSizePixel = 0;
-            TextSize = 12;
-            BackgroundColor3 = rgb(255, 255, 255)
-        });
-        
-        local border_frame = library:create("Frame", {
-            Parent = window_outline;
-            Size = dim2(1, 0, 1, 0);
-            Position = dim2(0, 0, 0, 0);
-            BackgroundColor3 = rgb(255, 255, 255);
-            BorderSizePixel = 0;
-            ZIndex = 0;
-        });
-
-        library.gradient = library:create("UIGradient", {
-            Color = rgbseq{
-                rgbkey(0, themes.preset["1"]), 
-                rgbkey(0.5, themes.preset["2"]),
-                rgbkey(1, themes.preset["3"]),
-            };
-            Parent = border_frame
-        });
-        
-        local tab_button_holder = library:create("Frame", {
-            AnchorPoint = vec2(0, 1);
-            Parent = window_outline;
-            BackgroundTransparency = 0.800000011920929;
-            Position = dim2(0, 2, 1, -2);
-            BorderColor3 = rgb(0, 0, 0);
-            Size = dim2(1, -4, 0, 20);
-            BorderSizePixel = 0;
-            BackgroundColor3 = rgb(0, 0, 0)
-        }); cfg.tab_button_holder = tab_button_holder
-        
-        library:create("UIListLayout", {
-            VerticalAlignment = Enum.VerticalAlignment.Center;
-            FillDirection = Enum.FillDirection.Horizontal;
-            HorizontalAlignment = Enum.HorizontalAlignment.Center;
-            HorizontalFlex = Enum.UIFlexAlignment.Fill;
-            Parent = tab_button_holder;
-            SortOrder = Enum.SortOrder.LayoutOrder;
-            VerticalFlex = Enum.UIFlexAlignment.Fill
-        });
-
-        cfg.frame = window_outline
-
-        local open = true
-        local animating = false
-        local toggleKey = properties.toggle_key or Enum.KeyCode.RightShift
-
-        function cfg.set_toggle_key(key)
-            toggleKey = key
-        end
-
-        function cfg.toggle()
-            if animating then return end
-            animating = true
-
-            if open then
-                tween_service:Create(clip_frame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-                    Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
-                }):Play()
-                task.delay(0.2, function()
-                    clip_frame.Visible = false
-                    animating = false
-                end)
-            else
-                clip_frame.Visible = true
-                clip_frame.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
-                tween_service:Create(clip_frame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-                    Size = fullSize,
-                }):Play()
-                task.delay(0.25, function()
-                    animating = false
-                end)
+            function cfg.set_toggle_key(key)
+                toggleKey = key
             end
 
-            open = not open
-        end
-
-        library:connection(uis.InputBegan, function(input, gpe)
-            if input.KeyCode == toggleKey then
-                cfg.toggle()
+            function cfg.toggle()
+                if animating then return end
+                animating = true
+                if open then
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0),
+                        BackgroundTransparency = 1,
+                    }):Play()
+                    for _, v in ipairs(window_outline:GetDescendants()) do
+                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                            tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {TextTransparency = 1}):Play()
+                        end
+                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            tween_service:Create(v, TweenInfo.new(0.2, Enum.EasingStyle.Quad), {BackgroundTransparency = 1}):Play()
+                        end
+                    end
+                    task.delay(0.25, function()
+                        window_outline.Visible = false
+                        animating = false
+                    end)
+                else
+                    window_outline.Visible = true
+                    window_outline.Size = dim2(fullSize.X.Scale, fullSize.X.Offset, 0, 0)
+                    window_outline.BackgroundTransparency = 1
+                    tween_service:Create(window_outline, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                        Size = fullSize,
+                        BackgroundTransparency = 0,
+                    }):Play()
+                    for _, v in ipairs(window_outline:GetDescendants()) do
+                        if v:IsA("TextLabel") or v:IsA("TextButton") or v:IsA("TextBox") then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {TextTransparency = 0}):Play()
+                        end
+                        if v:IsA("Frame") or v:IsA("ScrollingFrame") then
+                            tween_service:Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad), {BackgroundTransparency = 0}):Play()
+                        end
+                    end
+                    task.delay(0.25, function()
+                        animating = false
+                    end)
+                end
+                open = not open
             end
-        end)
 
-        return setmetatable(cfg, library)
-    end
+            library:connection(uis.InputBegan, function(input, gpe)
+                if input.KeyCode == toggleKey then
+                    cfg.toggle()
+                end
+            end)
+
+            return setmetatable(cfg, library)
+        end
 
         function library:tab(properties)
             local cfg = {
@@ -714,7 +713,6 @@ getgenv().loaded = true
                         Size = dim2(1, -4, 1, -48);
                         BorderSizePixel = 0;
                         BackgroundColor3 = rgb(0, 0, 0),
-                        ClipsDescendants = true;
                         Visible = false,
                     }); cfg.page = Page
                     
@@ -1494,7 +1492,7 @@ getgenv().loaded = true
                     ignore = options.ignore or false, 
                 }   
 
-                cfg.default = options.default or (cfg.multi and {cfg.items[1]}) or cfg.items[1] or nil
+                cfg.default = options.default or (cfg.multi and {cfg.items[1]}) or cfg.items[1] or "None"
 
                 flags[cfg.flag] = {} 
 
@@ -1538,10 +1536,9 @@ getgenv().loaded = true
                             Parent = inline;
                             Size = dim2(1, 0, 1, 0);
                             BackgroundTransparency = 1;
-                            Position = dim2(0, 4, 0, 0);
+                            Position = dim2(0, 0, 0, 1);
                             BorderSizePixel = 0;
-                            TextXAlignment = Enum.TextXAlignment.Left;
-                            TextTruncate = Enum.TextTruncate.AtEnd;
+                            AutomaticSize = Enum.AutomaticSize.X;
                             TextSize = 12;
                             BackgroundColor3 = rgb(255, 255, 255)
                         });
@@ -1650,7 +1647,7 @@ getgenv().loaded = true
                             end
                         end
 
-                        text.Text = if isTable then concat(selected, ", ") else (selected[1] or "")
+                        text.Text = if isTable then concat(selected, ", ") else selected[1]
 
                         flags[cfg.flag] = if isTable then selected else selected[1]
                         
@@ -1692,9 +1689,7 @@ getgenv().loaded = true
 
                     cfg.refresh_options(cfg.items)
 
-                    if cfg.default and cfg.default ~= "" then
-                        cfg.set(cfg.default)
-                    end
+                    cfg.set(cfg.default)
 
                     config_flags[cfg.flag] = cfg.set
                 -- 
@@ -2136,64 +2131,43 @@ getgenv().loaded = true
                 }
                 
                 -- Instances 
-                    local frame = library:create("Frame", {
+                    local frame = library:create("TextButton", {
+                        AnchorPoint = vec2(1, 0);
+                        Text = "";
+                        AutoButtonColor = false;
                         Parent = self.elements;
+                        Position = dim2(1, 0, 0, 0);
                         BorderColor3 = rgb(0, 0, 0);
-                        Size = dim2(1, 0, 0, 28);
-                        BorderSizePixel = 0;
-                        BackgroundTransparency = 1;
-                        BackgroundColor3 = self.color
-                    })
-
-                    local label = library:create("TextLabel", {
-                        Parent = frame;
-                        FontFace = fonts["ProggyClean"];
-                        TextColor3 = rgb(200, 200, 200);
-                        Text = cfg.name;
-                        BackgroundTransparency = 1;
-                        BorderSizePixel = 0;
-                        Size = dim2(1, 0, 0, 12);
-                        Position = dim2(0, 0, 0, 0);
-                        TextXAlignment = Enum.TextXAlignment.Left;
-                        TextSize = 12;
-                        BackgroundColor3 = rgb(255, 255, 255);
-                    })
-
-                    local accent = library:create("Frame", {
-                        Parent = frame;
-                        BorderColor3 = rgb(0, 0, 0);
-                        Size = dim2(1, 0, 0, 14);
-                        Position = dim2(0, 0, 0, 14);
+                        Size = dim2(1, 0, 0, 16);
                         BorderSizePixel = 0;
                         BackgroundColor3 = self.color
-                    }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
-
+                    }); library:apply_theme(frame, tostring(self.count), "BackgroundColor3")
+                    
                     local frame_inline = library:create("Frame", {
-                        Parent = accent;
+                        Parent = frame;
                         Position = dim2(0, 1, 0, 1);
                         BorderColor3 = rgb(0, 0, 0);
                         Size = dim2(1, -2, 1, -2);
                         BorderSizePixel = 0;
                         BackgroundColor3 = themes.preset.inline
                     }); library:apply_theme(frame_inline, "inline", "BackgroundColor3")
-
+                    
                     local input = library:create("TextBox", {
-                        Parent = accent,
+                        Parent = frame,
                         Name = "",
                         FontFace = fonts["ProggyClean"],
                         TextTruncate = Enum.TextTruncate.AtEnd,
                         TextSize = 12,
-                        Size = dim2(1, -8, 1, 0),
-                        RichText = false,
+                        Size = dim2(1, -6, 1, 0),
+                        RichText = true,
                         TextColor3 = rgb(255, 255, 255),
                         BorderColor3 = rgb(0, 0, 0),
                         CursorPosition = -1,
                         BackgroundTransparency = 1,
                         TextXAlignment = Enum.TextXAlignment.Left,
-                        Position = dim2(0, 4, 0, 0),
+                        Position = dim2(0, 6, 0, 0),
                         BorderSizePixel = 0,
-                        PlaceholderColor3 = rgb(120, 120, 120),
-                        PlaceholderText = cfg.placeholder,
+                        PlaceholderColor3 = rgb(170, 170, 170),
                     })
                 -- 
                 
@@ -2526,53 +2500,56 @@ getgenv().loaded = true
                 return setmetatable(cfg, library)
             end
 
-            function library:button(options)
+            function library:button(options) 
                 local cfg = {
                     name = options.name or "button",
                     callback = options.callback or function() end,
-                    notification = options.notification or nil,
                 }
+                
+                -- Instances 
+                    local frame = library:create("TextButton", {
+                        AnchorPoint = vec2(1, 0);
+                        Text = "";
+                        AutoButtonColor = false;
+                        Parent = self.elements;
+                        Position = dim2(1, 0, 0, 0);
+                        BorderColor3 = rgb(0, 0, 0);
+                        Size = dim2(1, 0, 0, 16);
+                        BorderSizePixel = 0;
+                        BackgroundColor3 = self.color
+                    }); library:apply_theme(frame, tostring(self.count), "BackgroundColor3")
+                    
+                    local frame_inline = library:create("Frame", {
+                        Parent = frame;
+                        Position = dim2(0, 1, 0, 1);
+                        BorderColor3 = rgb(0, 0, 0);
+                        Size = dim2(1, -2, 1, -2);
+                        BorderSizePixel = 0;
+                        BackgroundColor3 = themes.preset.inline
+                    }); library:apply_theme(frame_inline, "inline", "BackgroundColor3")
+                    
+                    local text = library:create("TextLabel", {
+                        FontFace = fonts["ProggyClean"];
+                        TextColor3 = rgb(255, 255, 255);
+                        BorderColor3 = rgb(0, 0, 0);
+                        Text = cfg.name;
+                        Parent = frame;
+                        Size = dim2(1, 0, 1, 0);
+                        BackgroundTransparency = 1;
+                        Position = dim2(0, 1, 0, 1);
+                        BorderSizePixel = 0;
+                        AutomaticSize = Enum.AutomaticSize.X;
+                        TextSize = 12;
+                        BackgroundColor3 = rgb(255, 255, 255)
+                    });
+                -- 
 
-                local accent = library:create("Frame", {
-                    Parent = self.elements;
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, 0, 0, 16);
-                    BorderSizePixel = 0;
-                    BackgroundColor3 = self.color;
-                }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
-
-                local inline = library:create("Frame", {
-                    Parent = accent;
-                    Position = dim2(0, 1, 0, 1);
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, -2, 1, -2);
-                    BorderSizePixel = 0;
-                    BackgroundColor3 = themes.preset.inline;
-                }); library:apply_theme(inline, "inline", "BackgroundColor3")
-
-                local btn = library:create("TextButton", {
-                    FontFace = fonts["ProggyClean"];
-                    TextColor3 = rgb(200, 200, 200);
-                    Text = cfg.name;
-                    AutoButtonColor = false;
-                    Parent = inline;
-                    BorderColor3 = rgb(0, 0, 0);
-                    Size = dim2(1, 0, 1, 0);
-                    Position = dim2(0, 6, 0, 0);
-                    BorderSizePixel = 0;
-                    BackgroundTransparency = 1;
-                    TextXAlignment = Enum.TextXAlignment.Left;
-                    TextSize = 12;
-                    BackgroundColor3 = rgb(255, 255, 255);
-                });
-
-                btn.MouseButton1Click:Connect(function()
-                    cfg.callback()
-                    if cfg.notification then
-                        notifications:create_notification({ name = cfg.notification })
-                    end
-                end)
-
+                -- Connections 
+                    frame.MouseButton1Click:Connect(function()
+                        cfg.callback()
+                    end)
+                --
+                
                 return setmetatable(cfg, library)
             end 
         -- 
