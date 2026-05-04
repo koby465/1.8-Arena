@@ -1077,7 +1077,7 @@ getgenv().loaded = true
                 });
                 
                 library:create("UIListLayout", {
-                    Parent = ScrollingFrame;
+                    Parent = self.column;
                     Padding = dim(0, 5);
                     SortOrder = Enum.SortOrder.LayoutOrder
                 });
@@ -1151,7 +1151,7 @@ getgenv().loaded = true
                         library:create("UIListLayout", {
                             FillDirection = Enum.FillDirection.Horizontal;
                             HorizontalAlignment = Enum.HorizontalAlignment.Right;
-                            Parent = right_components;
+                            Parent = accent;
                             Padding = dim(0, 4);
                             SortOrder = Enum.SortOrder.LayoutOrder
                         });
