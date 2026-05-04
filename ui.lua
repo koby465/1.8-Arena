@@ -401,7 +401,8 @@ getgenv().loaded = true
 
         local config_holder;
         function library:update_config_list() 
-            if not config_holder then 
+            local target = library.config_holder or config_holder
+            if not target then 
                 return 
             end
             
@@ -411,10 +412,9 @@ getgenv().loaded = true
                 local name = file:gsub(library.directory .. "/configs\\", ""):gsub(".cfg", ""):gsub(library.directory .. "\\configs\\", "")
                 list[#list + 1] = name
             end
-            
 
-            config_holder.refresh_options(list)
-        end 
+            target.refresh_options(list)
+        end
 
         function library:get_config()
             local Config = {}
