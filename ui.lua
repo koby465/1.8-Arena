@@ -194,12 +194,15 @@ getgenv().loaded = true
     -- Font importing system 
         local fonts = {}; do
             function Register_Font(Name, Weight, Style, Asset)
-                if not isfile(Asset.Id) then
-                    writefile(Asset.Id, Asset.Font)
+                local ttf_path = library.directory .. "/fonts/" .. Asset.Id
+                local font_path = library.directory .. "/fonts/" .. Name .. ".font"
+
+                if not isfile(ttf_path) then
+                    writefile(ttf_path, Asset.Font)
                 end
-                
-                if isfile(Name .. ".font") then
-                    delfile(Name .. ".font")
+
+                if isfile(font_path) then
+                    delfile(font_path)
                 end
                 
                 local Data = {
@@ -209,14 +212,14 @@ getgenv().loaded = true
                             name = "Regular",
                             weight = Weight,
                             style = Style,
-                            assetId = getcustomasset(Asset.Id),
+                            assetId = getcustomasset(ttf_path),
                         },
                     },
                 }
                 
-                writefile(Name .. ".font", game:GetService("HttpService"):JSONEncode(Data))
-                
-                return getcustomasset(Name .. ".font");
+                writefile(font_path, game:GetService("HttpService"):JSONEncode(Data))
+
+                return getcustomasset(font_path)
             end
             
             local ProggyTiny = Register_Font("ProggyTiny", 200, "Normal", {
