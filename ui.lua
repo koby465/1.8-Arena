@@ -429,16 +429,8 @@ getgenv().loaded = true
             return http_service:JSONEncode(Config)
         end
 
-        function library:save_config(name)
-            local data = library:get_config()
-            writefile(library.directory .. "/configs/" .. name .. ".cfg", data)
-            library:update_config_list()
-        end
-
-        function library:load_config(name) 
-            local path = library.directory .. "/configs/" .. name .. ".cfg"
-            if not isfile(path) then return end
-            local config = http_service:JSONDecode(readfile(path))
+        function library:load_config(config_json) 
+            local config = http_service:JSONDecode(config_json)
             
             for _, v in next, config do 
                 local function_set = library.config_flags[_]
@@ -1018,7 +1010,7 @@ getgenv().loaded = true
                     BorderColor3 = rgb(0, 0, 0);
                     BorderSizePixel = 0;
                     BackgroundColor3 = self.color
-                }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3");
+                }); library:apply_theme(fill, tostring(self.count), "BackgroundColor3");
 
                 local dark = library:create("Frame", {
                     Parent = accent;
@@ -1077,7 +1069,7 @@ getgenv().loaded = true
                 });
                 
                 library:create("UIListLayout", {
-                    Parent = self.column;
+                    Parent = ScrollingFrame;
                     Padding = dim(0, 5);
                     SortOrder = Enum.SortOrder.LayoutOrder
                 });
@@ -1151,7 +1143,7 @@ getgenv().loaded = true
                         library:create("UIListLayout", {
                             FillDirection = Enum.FillDirection.Horizontal;
                             HorizontalAlignment = Enum.HorizontalAlignment.Right;
-                            Parent = accent;
+                            Parent = right_components;
                             Padding = dim(0, 4);
                             SortOrder = Enum.SortOrder.LayoutOrder
                         });
@@ -2236,8 +2228,8 @@ getgenv().loaded = true
                             Size = dim2(0.5, 0, 0, 16);
                             BorderSizePixel = 0;
                             BackgroundColor3 = self.color
-                        });
-        
+                        }); library:apply_theme(accent, tostring(self.count), "BackgroundColor3")
+                        
                         local inline = library:create("Frame", {
                             Parent = keybind_holder;
                             Position = dim2(0, 1, 0, 1);
